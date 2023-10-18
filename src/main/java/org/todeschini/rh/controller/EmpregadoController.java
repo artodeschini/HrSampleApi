@@ -10,7 +10,9 @@ import org.todeschini.rh.exception.ResourceNotFoundException;
 import org.todeschini.rh.model.Empregado;
 import org.todeschini.rh.service.IEmpregadoService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -41,6 +43,21 @@ public class EmpregadoController {
             throw new ResourceNotFoundException("Nao foi possivel encontrar empregado com o id " + id);
         }
         return ResponseEntity.ok(empregado);
+    }
+
+    @DeleteMapping("/empregados/{id}")
+    public ResponseEntity<Map<String, Boolean>> delete(@PathVariable Integer id) {
+        Empregado empregado = service.findById(id).orElse(null);
+        if ( empregado == null ) {
+            throw new ResourceNotFoundException("Nao foi possivel encontrar empregado com o id " + id);
+        }
+
+        service.deleteEmpregado(empregado);
+
+        Map<String, Boolean> response = new HashMap<>();
+        response.put("delete", Boolean.TRUE);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/empregados/{id}")
