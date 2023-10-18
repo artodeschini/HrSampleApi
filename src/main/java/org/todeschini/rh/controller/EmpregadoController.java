@@ -3,11 +3,15 @@ package org.todeschini.rh.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.todeschini.rh.exception.ResourceNotFoundException;
 import org.todeschini.rh.model.Empregado;
 import org.todeschini.rh.service.IEmpregadoService;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("rh-app")
@@ -25,9 +29,32 @@ public class EmpregadoController {
     }
 
     @PostMapping("/empregados")
-    public Empregado saveEmpregado(@RequestBody Empregado e) {
+    public ResponseEntity<Empregado> saveEmpregado(@RequestBody Empregado e) {
         LOGGER.info(e.toString());
-        return service.saveEmpregado(e);
+        return new ResponseEntity<Empregado>(service.saveEmpregado(e), HttpStatus.CREATED);
+    }
 
+    @GetMapping("/empregados/{id}")
+    public ResponseEntity<Empregado> getEmpregadoById(@PathVariable Integer id) {
+        Empregado empregado = service.findById(id).orElse(null);
+        if ( empregado == null ) {
+            throw new ResourceNotFoundException("Nao foi possivel encontrar empregado com o id " + id);
+        }
+        return ResponseEntity.ok(empregado);
+    }
+
+    @PutMapping("/empregados/{id}")
+    public ResponseEntity<Empregado> editar(@PathVariable Integer id, @RequestBody Empregado e) {
+        Empregado empregado = service.findById(id).orElse(null);
+        if ( empregado == null ) {
+            throw new ResourceNotFoundException("Nao foi possivel encontrar empregado com o id " + id);
+        }
+        empregado.setNome(e.getNome());
+        empregado.setDepartamento(e.getDepartamento());
+        empregado.setSaldo(e.getSaldo());
+
+        empregado = service.saveEmpregado(empregado);
+
+        return ResponseEntity.ok(empregado);
     }
 }
