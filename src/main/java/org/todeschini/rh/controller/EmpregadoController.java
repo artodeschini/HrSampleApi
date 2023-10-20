@@ -26,8 +26,8 @@ public class EmpregadoController {
     private IEmpregadoService service;
 
     @GetMapping("/empregados")
-    public List<Empregado> listarAll() {
-        return service.listarEmpregados();
+    public ResponseEntity<List<Empregado>> listarAll() {
+        return ResponseEntity.ok(service.listarEmpregados());
     }
 
     @PostMapping("/empregados")
